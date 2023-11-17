@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Device Motion/Orientation Demo 03</title>
+<style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: black;
+      overflow: hidden;
+    }
+    .face {
+      background-color: #ffcc4d;
+      border-radius: 50%;
+      width: 300px;
+      height: 300px; 
+      position: relative;
+    }
+    .eye {
+      width: 70px; 
+      height: 70px;
+      background-color: #fff;
+      border-radius: 50%;
+      position: absolute;
+      top: 75px; 
+    }
+    .eye::after {
+      content: '';
+      display: block;
+      width: 30px; 
+      height: 30px; 
+      background-color: #000;
+      border-radius: 50%;
+      position: absolute;
+      left: 20px; 
+      top: 20px; 
+    }
+    .eye.left {
+      left: 60px; 
+    }
+    .eye.right {
+      right: 60px; 
+    }
+    .mouth {
+      width: 150px; 
+      height: 30px;
+      background-color: #000;
+      position: absolute;
+      bottom: 50px; 
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 15px; 
+    }
+    #requestButton {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      padding: 10px;
+      background-color: red;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      display: block;
+      z-index: 1000;
+    }
+</style>
+</head>
+<body>
+
+<div class="face">
+  <div class="eye left"></div>
+  <div class="eye right"></div>
+  <div class="mouth"></div>
+</div>
+<button id="requestButton" onclick="requestAccess()">Enable Device Orientation</button>
+
+<script>
+    function handleOrientation(event) {
+        var beta = event.beta;
+        var gamma = event.gamma;
+        
+        document.querySelector('.eye.left').style.transform = `translate(${gamma/5}px, ${beta/5}px)`;
+        document.querySelector('.eye.right').style.transform = `translate(${gamma/5}px, ${beta/5}px)`;
+        document.querySelector('.mouth').style.height = `${20 + Math.abs(gamma/5)}px`;
+    }
+
+    function requestAccess() {
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+            DeviceOrientationEvent.requestPermission()
+                .then(permissionState => {
+                    if (permissionState === 'granted') {
+                        window.addEventListener('deviceorientation', handleOrientation, false);
+                        document.getElementById('requestButton').style.display = 'none';
+                    }
+                })
+                .catch(console.error);
+        } else {
+            window.addEventListener('deviceorientation', handleOrientation, false);
+        }
+    }
+
+    if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        document.getElementById('requestButton').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
